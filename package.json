@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Cerva Jager",
   "scripts": {
-    "build": "npm run build-ts",
+    "lint": "eslint --fix --ext .ts .",
+    "build": "npm run lint && npm run build-ts",
     "build-ts": "tsc",
     "test": "npm run build && jest --forceExit --coverage --verbose"
   },
@@ -19,11 +20,20 @@
   "homepage": "https://github.com/arturfigueira/cervajager#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "eslint": "^7.20.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/dotenv": "^8.2.0",
+    "@types/eslint": "^7.2.6",
+    "@types/jest": "^26.0.20",
+    "@types/lodash": "^4.14.168",
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
     "chai": "^4.3.0",
+    "eslint": "^7.20.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
     "jest-mock-extended": "^1.0.13",
     "ts-jest": "^26.5.1",
