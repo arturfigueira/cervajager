@@ -6,7 +6,7 @@
     "lint": "eslint --fix --ext .ts .",
     "build": "npm run lint && npm run build-ts",
     "build-ts": "tsc",
-    "test": "npm run build && jest --forceExit --coverage --verbose"
+    "test": "npm run build && jest --passWithNoTests --forceExit --coverage --verbose"
   },
   "repository": {
     "type": "git",
