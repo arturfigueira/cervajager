@@ -20,8 +20,11 @@
   },
   "homepage": "https://github.com/arturfigueira/cervajager#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
+    "chalk-table": "^1.0.2",
     "commander": "^7.1.0",
     "dotenv": "^8.2.0",
+    "figlet": "^1.5.0",
     "jsonfile": "^6.1.0",
     "lodash": "^4.17.21",
     "puppeteer": "^7.1.0"
@@ -30,6 +33,7 @@
     "@types/chai": "^4.2.15",
     "@types/dotenv": "^8.2.0",
     "@types/eslint": "^7.2.6",
+    "@types/figlet": "^1.2.1",
     "@types/jest": "^26.0.20",
     "@types/jsonfile": "^6.0.0",
     "@types/lodash": "^4.14.168",

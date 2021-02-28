@@ -1,11 +1,52 @@
 import { Command } from "commander";
 import { ScrapedBeer, Scraper } from "./core";
 import { SamplerProcessor, WebScraper } from "./plugins/scrapers/web";
+import chalk from "chalk";
+import chalkTable from "chalk-table";
+import * as figlet from "figlet";
+
+declare type PrintableRow = {
+  name: string;
+  price: string;
+  availability: string;
+};
+
+//TODO Multi-language support
+class Availability {
+  private static readonly OPTIONS = {
+    InStock: "in stock",
+    OutOfStock: "out of stock",
+    NotFound: "unavailable",
+  };
+
+  public static getFor(beer: ScrapedBeer): string {
+    let availability = Availability.OPTIONS.InStock;
+    if (!beer.found) {
+      availability = Availability.OPTIONS.NotFound;
+    } else if (!beer.available) {
+      availability = Availability.OPTIONS.OutOfStock;
+    }
+    return availability;
+  }
+}
 
 //TODO Deal with a puppeeter bug, where zombie browsers keep consuming resources
+/**
+ * CLI Application
+ */
 export default class App {
-  run(): void {
+  private static TABLE_OPTIONS = {
+    leftPad: 2,
+    columns: [
+      { field: "name", name: chalk.cyan("Beer Name") },
+      { field: "price", name: chalk.cyan("Price [asc]") },
+      { field: "availability", name: chalk.cyan("Availability") },
+    ],
+  };
+
+  private initializeProgram() {
     const program = new Command();
+
     program.requiredOption(
       "-s, --search <beer>",
       "Beer you are interested in searching for prices"
@@ -14,32 +55,50 @@ export default class App {
 
     program.parse(process.argv);
 
+    return program;
+  }
+  run(): void {
+    this.printLn(figlet.textSync("Cerva Jäger", { horizontalLayout: "full" }));
+
+    const program = this.initializeProgram();
     const options = program.opts();
-    console.log(`App will search prices for: ${options.search}`);
+
+    this.printLn("");
+    this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
 
     const scraper = new Scraper([new WebScraper(new SamplerProcessor())]);
-
-    try {
-      scraper
-        .byName(options.search)
-        .then((results) => results.map((result) => this.sout(result)));
-    } catch (err) {
-      console.log(err);
-    }
+    scraper
+      .byName(options.search)
+      .then((results) => results.map((result) => this.toPrintableRow(result)))
+      .then((rows) => this.printTable(rows))
+      .then(() => this.printLn(""))
+      .catch((err) => {
+        console.log(chalk.redBright(err));
+      })
+      .finally(() => {
+        process.exit(0);
+      });
   }
 
-  private sout(beer: ScrapedBeer): void {
-    let parsed = `- ${beer.source.name}: Not Found`;
-    if (beer.found) {
-      parsed = `- ${beer.source.name}: ${beer.price}`;
+  private printLn(text: string): void {
+    console.log(chalk.blueBright(text));
+  }
 
-      if (!beer.available) {
-        parsed += "(out of stock)";
-      }
-    }
+  private printTable(rows: PrintableRow[]): void {
+    return console.log(chalkTable(rows, App.TABLE_OPTIONS));
+  }
 
-    console.log(parsed);
+  private toPrintableRow(beer: ScrapedBeer): PrintableRow {
+    const name = chalk.cyan(beer.source.name);
+    const price = beer.found
+      ? `${chalk.cyan(beer.currency)} ${chalk.cyan(beer.price)}`
+      : "-";
+
+    const availability = Availability.getFor(beer);
+
+    return { name, price, availability };
   }
 }
 
-new App().run();
+const app = new App();
+app.run();

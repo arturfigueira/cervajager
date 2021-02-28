@@ -1,61 +1,13 @@
 [
   {
-    "name": "Copo Roleta Russa 320ml",
-    "price": "44.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 cervejas Everbrew Lata 473ml",
-    "price": "134.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 12 Cervejas Americanas Pabst Blue Ribbon 350ml Lata",
-    "price": "83.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Bar Mat Cervejabox",
-    "price": "49.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
     "price": "299.99",
     "currency": "R$",
     "inStock": true
   },
   {
-    "name": "Copo Roleta Russa 320ml",
-    "price": "44.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 cervejas Everbrew Lata 473ml",
-    "price": "134.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Bar Mat Cervejabox",
-    "price": "49.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
     "price": "299.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 12 Cervejas Americanas Pabst Blue Ribbon 350ml Lata",
-    "price": "83.99",
     "currency": "R$",
     "inStock": true
   },
@@ -68,18 +20,6 @@
   {
     "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
     "price": "299.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 3 Cervejas Paulaner Hefe-weiss Lata 500ml",
-    "price": "84.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 4 cervejas Schneider 500ml + copo grátis",
-    "price": "159.99",
     "currency": "R$",
     "inStock": true
   },
@@ -108,44 +48,8 @@
     "inStock": true
   },
   {
-    "name": "Pack 6 Cervejas Paulaner Hefe-weiss Lata 500ml",
-    "price": "184.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 4 Cervejas alemã Paulaner Hefe-weiss 500ml",
-    "price": "131.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Cerveja alemã Paulaner Münchner Hell 500ml",
     "price": "33.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 cervejas Köstritzer 500ml + taça",
-    "price": "144.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Copo cerveja alemã Schneider 500ml",
-    "price": "142.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Taça cerveja alemã Köstritzer 300ml",
-    "price": "36.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 4 cervejas alemã Erdinger Weissbier 500ml",
-    "price": "29.99",
     "currency": "R$",
     "inStock": true
   },
@@ -198,68 +102,26 @@
     "inStock": true
   },
   {
-    "name": "Cerveja alemã HB Original 500m",
+    "name": "Cerveja alemã HB Original 500ml",
     "price": "39.99",
     "currency": "R$",
     "inStock": true
   },
   {
-    "name": "Pack 12 Cervejas Americanas Pabst Blue Ribbon 350ml Lata",
-    "price": "134.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Bar Mat Cervejabox",
-    "price": "83.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
     "price": "49.99",
     "currency": "R$",
     "inStock": true
   },
   {
-    "name": "Copo Roleta Russa 320ml",
-    "price": "299.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 cervejas Everbrew Lata 473ml",
-    "price": "44.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Bar Mat Cervejabox",
-    "price": "134.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
     "price": "49.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 12 Cervejas Americanas Pabst Blue Ribbon 350ml Lata",
-    "price": "299.99",
     "currency": "R$",
     "inStock": true
   },
   {
     "name": "Cerveja Artesanal Blanche de Bruxelles 330ml",
     "price": "83.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 2 Cervejas Belgas + Copo + Caixa Presenteável",
-    "price": "32.99",
     "currency": "R$",
     "inStock": true
   },
@@ -306,20 +168,8 @@
     "inStock": true
   },
   {
-    "name": "Pack 3 Brugse Zot Blond  + Taça Grátis",
-    "price": "136.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Cerveja belga Blanche de Bruges 330ml",
     "price": "31.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 Cervejas Alemãs + Caixa Presenteável",
-    "price": "95.99",
     "currency": "R$",
     "inStock": true
   },
@@ -332,12 +182,6 @@
   {
     "name": "Cerveja Belga Brugse Zot Dubbel 330ml",
     "price": "34.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Kit 3 Cervejas Belgas + Caixa Presenteável",
-    "price": "119.99",
     "currency": "R$",
     "inStock": true
   },
@@ -374,18 +218,6 @@
   {
     "name": "Cerveja Belga Brugse Zot Blond 750ml",
     "price": "89.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 3 Cervejas Belga Brugse Zot Dubbel 330ml",
-    "price": "104.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Pack 3 Cervejas Belga Straffe Hendrik Quadrupel 330ml",
-    "price": "135.99",
     "currency": "R$",
     "inStock": true
   },
