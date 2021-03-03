@@ -6,20 +6,8 @@
     "inStock": true
   },
   {
-    "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
-    "price": "299.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
     "name": "Cerveja Alemã Paulaner Hefe-weiss Lata 500ml",
     "price": "31.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
-    "price": "299.99",
     "currency": "R$",
     "inStock": true
   },
@@ -104,18 +92,6 @@
   {
     "name": "Cerveja alemã HB Original 500ml",
     "price": "39.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
-    "price": "49.99",
-    "currency": "R$",
-    "inStock": true
-  },
-  {
-    "name": "Barrilete cerveja alemã Paulaner Hefe-weiss 5L",
-    "price": "49.99",
     "currency": "R$",
     "inStock": true
   },

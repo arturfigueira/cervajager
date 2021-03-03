@@ -1,0 +1,25 @@
+{
+  "nationalities": [
+    "belga",
+    "alema",
+    "australiana",
+    "austriaca",
+    "canadense",
+    "dinamarquesa",
+    "escocesa",
+    "espanhola",
+    "americana",
+    "francesa",
+    "holandesa",
+    "inglesa",
+    "irlandesa",
+    "japonesa",
+    "tcheca",
+    "russa",
+    "tailandesa",
+    "portuguesa",
+    "argentina"
+  ],
+  "vessel": ["barrilete", "lata", "garrafa", "barril"],
+  "categories": ["cerveja", "artesanal"]
+}
