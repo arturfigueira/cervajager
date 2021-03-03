@@ -4,6 +4,7 @@ import { SamplerProcessor, WebScraper } from "./plugins/scrapers/web";
 import chalk from "chalk";
 import chalkTable from "chalk-table";
 import * as figlet from "figlet";
+import { DamerauMatcher } from "./core/matcher";
 
 declare type PrintableRow = {
   name: string;
@@ -66,7 +67,10 @@ export default class App {
     this.printLn("");
     this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
 
-    const scraper = new Scraper([new WebScraper(new SamplerProcessor())]);
+    const scraper = new Scraper(
+      [new WebScraper(new SamplerProcessor())],
+      new DamerauMatcher(80)
+    );
     scraper
       .byName(options.search)
       .then((results) => results.map((result) => this.toPrintableRow(result)))
