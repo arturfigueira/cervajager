@@ -5,6 +5,7 @@ import chalk from "chalk";
 import chalkTable from "chalk-table";
 import * as figlet from "figlet";
 import { DamerauMatcher } from "./core/matcher";
+import Logger from "./logger";
 
 declare type PrintableRow = {
   name: string;
@@ -45,6 +46,8 @@ export default class App {
     ],
   };
 
+  private log = Logger.getInstance();
+
   private initializeProgram() {
     const program = new Command();
 
@@ -52,35 +55,47 @@ export default class App {
       "-s, --search <beer>",
       "Beer you are interested in searching for prices"
     );
-    program.option("f, --file", "Export the results to a csv file");
+    program.option("d, --debug", "Enable debug mode");
 
     program.parse(process.argv);
 
     return program;
   }
   run(): void {
+    this.log.info("Starting CervaJager CLI");
     this.printLn(figlet.textSync("Cerva Jäger", { horizontalLayout: "full" }));
 
     const program = this.initializeProgram();
     const options = program.opts();
 
+    if (options.debug) {
+      Logger.enableDebug();
+      this.log.info("Debug mode enabled");
+    }
+
+    const sources = [new WebScraper(new SamplerProcessor())];
+    this.log.debug("Loaded Sources: %O", sources);
+
+    const matcher = new DamerauMatcher(80);
+    this.log.debug("Term Matcher: %O", matcher);
+
+    this.log.info("Starting price scraping for: %s", options.search);
+
     this.printLn("");
     this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
 
-    const scraper = new Scraper(
-      [new WebScraper(new SamplerProcessor())],
-      new DamerauMatcher(80)
-    );
+    const scraper = new Scraper(sources, matcher);
     scraper
       .byName(options.search)
-      .then((results) => results.map((result) => this.toPrintableRow(result)))
-      .then((rows) => this.printTable(rows))
+      .then((results) => this.toPrintableTable(results))
+      .then((table) => this.printTable(table))
       .then(() => this.printLn(""))
       .catch((err) => {
+        this.log.error(err);
         console.log(chalk.redBright(err));
       })
       .finally(() => {
-        process.exit(0);
+        this.log.info("CervaJager CLI Exited");
       });
   }
 
@@ -92,7 +107,14 @@ export default class App {
     return console.log(chalkTable(rows, App.TABLE_OPTIONS));
   }
 
+  private toPrintableTable(results: ScrapedBeer[]) {
+    this.log.info("Beers Found: %d", results.length);
+    this.log.debug("%O", results);
+    return results.map((result) => this.toPrintableRow(result));
+  }
+
   private toPrintableRow(beer: ScrapedBeer): PrintableRow {
+    this.log.info("%s: %d (%s)", beer.name, beer.price, beer.source.name);
     const name = chalk.cyan(beer.source.name);
     const price = beer.found
       ? `${chalk.cyan(beer.currency)} ${chalk.cyan(beer.price)}`
