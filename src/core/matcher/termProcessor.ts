@@ -1,6 +1,5 @@
 import exclusions from "./exclusions.json";
 import dictionary from "./dictionary.json";
-import _ from "lodash";
 import * as diacritics from "diacritics";
 
 /**
