@@ -10,6 +10,7 @@ import Logger from "./logger";
 declare type PrintableRow = {
   name: string;
   price: string;
+  store: string;
   availability: string;
 };
 
@@ -42,6 +43,7 @@ export default class App {
     columns: [
       { field: "name", name: chalk.cyan("Beer Name") },
       { field: "price", name: chalk.cyan("Price [asc]") },
+      { field: "store", name: chalk.cyan("Store") },
       { field: "availability", name: chalk.cyan("Availability") },
     ],
   };
@@ -62,6 +64,7 @@ export default class App {
     return program;
   }
   run(): void {
+    const timeStart = Date.now();
     this.log.info("Starting CervaJager CLI");
     this.printLn(figlet.textSync("Cerva Jäger", { horizontalLayout: "full" }));
 
@@ -73,30 +76,40 @@ export default class App {
       this.log.info("Debug mode enabled");
     }
 
-    const sources = [new WebScraper(new SamplerProcessor())];
-    this.log.debug("Loaded Sources: %O", sources);
+    try {
+      const sources = [new WebScraper(new SamplerProcessor())];
+      this.log.debug("Loaded Sources: %O", sources);
 
-    const matcher = new DamerauMatcher(80);
-    this.log.debug("Term Matcher: %O", matcher);
+      const matcher = new DamerauMatcher(80);
+      this.log.debug("Term Matcher: %O", matcher);
 
-    this.log.info("Starting price scraping for: %s", options.search);
+      this.log.info("Starting price scraping for: %s", options.search);
 
-    this.printLn("");
-    this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
+      this.printLn("");
+      this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
 
-    const scraper = new Scraper(sources, matcher);
-    scraper
-      .byName(options.search)
-      .then((results) => this.toPrintableTable(results))
-      .then((table) => this.printTable(table))
-      .then(() => this.printLn(""))
-      .catch((err) => {
-        this.log.error(err);
-        console.log(chalk.redBright(err));
-      })
-      .finally(() => {
-        this.log.info("CervaJager CLI Exited");
-      });
+      const scraper = new Scraper(sources, matcher);
+      scraper
+        .byName(options.search)
+        .then((results) => this.toPrintableTable(results))
+        .then((table) => this.printTable(table))
+        .then(() => this.printLn(""))
+        .catch((err) => {
+          this.log.error(err.stack);
+          console.log(chalk.redBright(err.message));
+        })
+        .finally(() => {
+          const timeEnd = Date.now();
+          this.log.debug(
+            `Execution Time: ${(timeEnd - timeStart) / 1000} seconds`
+          );
+          this.log.info("CervaJager CLI Exited");
+        });
+    } catch (err) {
+      this.log.error(err.stack);
+      console.log(chalk.redBright(err.message));
+      this.log.info("CervaJager CLI Exited with error");
+    }
   }
 
   private printLn(text: string): void {
@@ -115,14 +128,15 @@ export default class App {
 
   private toPrintableRow(beer: ScrapedBeer): PrintableRow {
     this.log.info("%s: %d (%s)", beer.name, beer.price, beer.source.name);
-    const name = chalk.cyan(beer.source.name);
+    const name = chalk.cyan(beer.name);
+    const store = chalk.cyan(beer.source.name);
     const price = beer.found
       ? `${chalk.cyan(beer.currency)} ${chalk.cyan(beer.price)}`
       : "-";
 
     const availability = Availability.getFor(beer);
 
-    return { name, price, availability };
+    return { name, price, store, availability };
   }
 }
 
