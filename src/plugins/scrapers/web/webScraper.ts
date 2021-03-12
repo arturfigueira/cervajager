@@ -1,8 +1,6 @@
 import { ScrapedBeer, SourceScraper } from "../../../core";
-import puppeteer, { Browser, Page } from "puppeteer";
+import puppeteer, { Browser } from "puppeteer";
 import { ScrapProcessor } from "./scrapProcessor";
-
-export declare type WebResource = { browser: Browser; page: Page };
 
 /**
  * Scraper concrete implementation that has the ability to access
@@ -16,27 +14,68 @@ export class WebScraper implements SourceScraper {
   //TODO Add Log
   private static readonly VIEWPORT_BEST_SIZE = { width: 2048, height: 1024 };
 
-  constructor(protected scrapProcessor: ScrapProcessor) {
-    if (!scrapProcessor) {
-      throw new Error("A Scrape Handler must be provided");
+  /**
+   * Create a new WebScraper with a list of Processors
+   * @param scrapProcessors Non-null, nor empty list of web processors
+   * @throws If the scrapProcessor is null or empty
+   */
+  constructor(protected scrapProcessors: ScrapProcessor[]) {
+    if (!scrapProcessors || scrapProcessors.length == 0) {
+      throw new Error("At least one Scrape Handler must be provided");
     }
+  }
+
+  protected async launch(): Promise<Browser> {
+    const browser: Browser = await puppeteer.launch();
+    return browser;
   }
 
   /**
    * @inheritdoc
    */
   scrapeByName(beerName: string): Promise<ScrapedBeer[]> {
-    return this.launch().then((resources) =>
-      this.scrapProcessor
-        .run(resources.page, beerName)
-        .finally(() => resources.browser.close())
+    return this.launch().then((browser) => {
+      return Promise.allSettled(this.launchScrapers(browser, beerName))
+        .then((result) => this.evaluateResults(result))
+        .finally(() => browser.close());
+    });
+  }
+
+  protected launchScrapers(
+    browser: Browser,
+    beerName: string
+  ): Promise<ScrapedBeer[]>[] {
+    return this.scrapProcessors.map((processor) =>
+      this.processPage(browser, processor, beerName)
     );
   }
 
-  protected async launch(): Promise<WebResource> {
-    const browser: Browser = await puppeteer.launch();
-    const page: Page = await browser.newPage();
-    page.setViewport(WebScraper.VIEWPORT_BEST_SIZE);
-    return { browser, page };
+  protected processPage(
+    browser: Browser,
+    processor: ScrapProcessor,
+    beerName: string
+  ): Promise<ScrapedBeer[]> {
+    return browser.newPage().then((page) => {
+      page.setViewport(WebScraper.VIEWPORT_BEST_SIZE);
+      return processor.run(page, beerName);
+    });
+  }
+
+  protected evaluateResults(
+    results: PromiseSettledResult<ScrapedBeer[]>[]
+  ): ScrapedBeer[] {
+    //TODO how to warn failed promises? Log?
+
+    let scrapedBeers: ScrapedBeer[] = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        result.value.forEach(
+          (beers) => (scrapedBeers = scrapedBeers.concat(beers))
+        );
+      }
+    });
+
+    results;
+    return scrapedBeers;
   }
 }

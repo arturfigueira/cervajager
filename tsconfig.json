@@ -4,7 +4,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es6",
+    "target": "ES2020",
     "noImplicitAny": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
