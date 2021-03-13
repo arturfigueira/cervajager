@@ -77,7 +77,8 @@ export default class App {
     }
 
     try {
-      const sources = [new WebScraper(new SamplerProcessor())];
+      const webProcessors = [new SamplerProcessor()];
+      const sources = [new WebScraper(webProcessors)];
       this.log.debug("Loaded Sources: %O", sources);
 
       const matcher = new DamerauMatcher(80);
@@ -130,9 +131,10 @@ export default class App {
     this.log.info("%s: %d (%s)", beer.name, beer.price, beer.source.name);
     const name = chalk.cyan(beer.name);
     const store = chalk.cyan(beer.source.name);
-    const price = beer.found
-      ? `${chalk.cyan(beer.currency)} ${chalk.cyan(beer.price)}`
-      : "-";
+    const price =
+      beer.found && beer.price
+        ? `${chalk.cyan(beer.currency)} ${chalk.cyan(beer.price)}`
+        : "-";
 
     const availability = Availability.getFor(beer);
 

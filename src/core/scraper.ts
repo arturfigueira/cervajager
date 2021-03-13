@@ -28,8 +28,24 @@ export class Scraper {
       }
     );
 
-    return scrapedBeers
-      .filter((beer) => this.matcher.matches(beer.name, searchTerm))
-      .sort((s1, s2) => 0 - (s1.price > s2.price ? -1 : 1));
+    return this.sortResult(
+      scrapedBeers
+        .filter((beer) => this.matcher.matches(beer.name, searchTerm))
+        .map((beer) => {
+          beer.name = _.capitalize(beer.name);
+          return beer;
+        })
+    );
+  }
+
+  private sortResult(beers: ScrapedBeer[]): ScrapedBeer[] {
+    const nonPricedBeers = beers
+      .filter((beers) => !beers.price)
+      .sort((s1, s2) => 0 - (s1.name > s2.name ? -1 : 1));
+
+    return beers
+      .filter((beer) => beer.price)
+      .sort((s1, s2) => 0 - (s1.price > s2.price ? -1 : 1))
+      .concat(nonPricedBeers);
   }
 }
