@@ -1,5 +1,5 @@
 import { ScrapedBeer, SourceScraper } from "../../../core";
-import puppeteer, { Browser } from "puppeteer";
+import puppeteer, { Browser, Page } from "puppeteer";
 import { ScrapProcessor } from "./scrapProcessor";
 
 /**
@@ -10,9 +10,9 @@ import { ScrapProcessor } from "./scrapProcessor";
  * processing the data
  */
 export class WebScraper implements SourceScraper {
-  //TODO move it to an external config
-  //TODO Add Log
   private static readonly VIEWPORT_BEST_SIZE = { width: 2048, height: 1024 };
+
+  private static readonly FILTERS = ["image", "font"];
 
   /**
    * Create a new WebScraper with a list of Processors
@@ -26,7 +26,16 @@ export class WebScraper implements SourceScraper {
   }
 
   protected async launch(): Promise<Browser> {
-    const browser: Browser = await puppeteer.launch();
+    const browser: Browser = await puppeteer.launch({
+      args: [
+        "--hide-scrollbars",
+        "--mute-audio",
+        "--disable-infobars",
+        "--disable-breakpad",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+      ],
+    });
     return browser;
   }
 
@@ -46,32 +55,53 @@ export class WebScraper implements SourceScraper {
     beerName: string
   ): Promise<ScrapedBeer[]>[] {
     return this.scrapProcessors.map((processor) =>
-      this.processPage(browser, processor, beerName)
+      this.setPageAndProcess(browser, processor, beerName)
     );
   }
 
-  protected processPage(
+  protected setPageAndProcess(
     browser: Browser,
     processor: ScrapProcessor,
     beerName: string
   ): Promise<ScrapedBeer[]> {
     return browser.newPage().then((page) => {
       page.setViewport(WebScraper.VIEWPORT_BEST_SIZE);
-      return processor.run(page, beerName);
+      return page
+        .setRequestInterception(true)
+        .then(() => this.runProcessor(page, processor, beerName));
+    });
+  }
+
+  protected runProcessor(
+    page: Page,
+    processor: ScrapProcessor,
+    beerName: string
+  ): Promise<ScrapedBeer[]> {
+    this.applyFiltersToPage(page);
+    return processor.run(page, beerName);
+  }
+
+  protected applyFiltersToPage(page: Page): void {
+    page.on("request", (req) => {
+      if (WebScraper.FILTERS.some((type) => req.resourceType() === type)) {
+        req.abort();
+      } else {
+        req.continue();
+      }
     });
   }
 
   protected evaluateResults(
     results: PromiseSettledResult<ScrapedBeer[]>[]
   ): ScrapedBeer[] {
-    //TODO how to warn failed promises? Log?
-
     let scrapedBeers: ScrapedBeer[] = [];
     results.forEach((result) => {
       if (result.status === "fulfilled") {
         result.value.forEach(
           (beers) => (scrapedBeers = scrapedBeers.concat(beers))
         );
+      } else {
+        console.error(`A Scrape process ended badly. ${result.reason}`);
       }
     });
 
