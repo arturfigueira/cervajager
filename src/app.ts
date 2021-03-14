@@ -64,7 +64,10 @@ export default class App {
     return program;
   }
   run(): void {
+    Logger.interceptConsole();
+
     const timeStart = Date.now();
+
     this.log.info("Starting CervaJager CLI");
     this.printLn(figlet.textSync("Cerva Jäger", { horizontalLayout: "full" }));
 

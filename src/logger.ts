@@ -48,4 +48,20 @@ export default class Logger {
   public static enableDebug = (): void => {
     Logger.transports.rotationAll.level = "debug";
   };
+
+  /**
+   * Intercept any info, warn, error, and debug calls to
+   * console and throw it all into our current
+   * Logger.
+   */
+  public static interceptConsole(): void {
+    console.info = (...args: any) =>
+      Logger._instance.info.call(Logger._instance, ...args);
+    console.warn = (...args: any) =>
+      Logger._instance.warn.call(Logger._instance, ...args);
+    console.error = (...args: any) =>
+      Logger._instance.error.call(Logger._instance, ...args);
+    console.debug = (...args: any) =>
+      Logger._instance.debug.call(Logger._instance, ...args);
+  }
 }
