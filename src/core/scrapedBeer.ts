@@ -11,7 +11,7 @@ export interface Source {
  */
 export class ScrapedBeer {
   name: string;
-  price: number;
+  price?: number;
   currency: string;
   found = true;
   available = true;
@@ -27,7 +27,6 @@ export class UndiscoveredBeer extends ScrapedBeer {
     this.name = beerName;
     this.found = false;
     this.available = false;
-    this.price = Number.MAX_SAFE_INTEGER;
     this.currency = "";
     this.source = source;
   }
