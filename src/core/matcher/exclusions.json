@@ -20,6 +20,6 @@
     "portuguesa",
     "argentina"
   ],
-  "vessel": ["barrilete", "lata", "garrafa", "barril"],
-  "categories": ["cerveja", "artesanal"]
+  "vessel": ["barrilete", "lata", "garrafa de", "garrafa", "barril", "grf"],
+  "categories": ["cerveja", "artesanal", "cerv.", "unidade", "unid"]
 }
