@@ -3,7 +3,7 @@
  */
 export interface Source {
   name: string;
-  location: string;
+  location?: string;
 }
 
 /**
