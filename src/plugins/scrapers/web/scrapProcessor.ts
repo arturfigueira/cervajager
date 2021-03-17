@@ -1,4 +1,4 @@
-import { ScrapedBeer } from "../../../core";
+import { ScrapedBeer, Source } from "../../../core";
 import { Page } from "puppeteer";
 
 /**
@@ -12,6 +12,13 @@ import { Page } from "puppeteer";
  * Should be used in conjunction with {@link WebScraper}
  */
 export interface ScrapProcessor {
+  /**
+   * Tag this processor with the source in which
+   * data will be scraped. Important information
+   * for identification during async processing
+   */
+  getSource(): Source;
+
   /**
    * Dive into the Web Site trying to scrape data regarding a
    * beer
