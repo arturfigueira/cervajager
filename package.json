@@ -1,13 +1,28 @@
 {
   "name": "cervajager",
   "version": "0.1.0",
-  "description": "Cerva Jager",
-  "main": "index.js",
+  "description": "helper module to build applications to search beer prices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*.d.ts",
+    "dist/*.js.map",
+    "dist/*.js",
+    "dist/core/**/*.d.ts",
+    "dist/core/**/*.js.map",
+    "dist/core/**/*.js",
+    "dist/plugins/**/*.d.ts",
+    "dist/plugins/**/*.js.map",
+    "dist/plugins/**/*.js"
+  ],
   "scripts": {
     "lint": "eslint --fix --ext .ts .",
     "build": "npm run lint && npm run build-ts",
     "build-ts": "tsc",
     "test": "npm run build && jest --passWithNoTests --forceExit --coverage --verbose"
+  },
+  "engines": {
+    "node": ">=14"
   },
   "repository": {
     "type": "git",
@@ -15,6 +30,7 @@
   },
   "author": "Artur Figueira",
   "license": "GNU",
+  "private": true,
   "bugs": {
     "url": "https://github.com/arturfigueira/cervajager/issues"
   },
