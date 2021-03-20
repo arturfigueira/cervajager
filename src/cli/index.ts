@@ -37,7 +37,7 @@ export default class App {
     const timeStart = Date.now();
 
     this.log.info("Starting CervaJager CLI");
-    this.printLn(figlet.textSync("Cerva Jäger", { horizontalLayout: "full" }));
+    this.printLn(figlet.textSync("CervaJäger", { horizontalLayout: "full" }));
 
     const program = this.initializeProgram();
     const options = program.opts();
