@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import * as figlet from "figlet";
+import ora from "ora";
 import { DamerauMatcher } from "../core/matcher";
 import Logger from "./logger";
 import ResultPrinter from "./resultPrinter";
@@ -53,15 +54,23 @@ export default class App {
       const sources = [new WebScraper(new SamplerProcessor(), matcher)];
       this.log.debug("Loaded Sources: %O", sources);
 
-      this.log.info("Starting price scraping for: %s", options.search);
+      const searchTerm = options.search;
+
+      this.log.info("Starting price scraping for: %s", searchTerm);
 
       this.printLn("");
-      this.printLn(`Presenting results for: ${chalk.gray(options.search)}`);
+
+      const spinner = ora(
+        `Searching results for: ${chalk.gray(searchTerm)}`
+      ).start();
 
       const scraper = new Scraper(sources);
       scraper
-        .byName(options.search)
-        .then((result) => ResultPrinter.print(result))
+        .byName(searchTerm)
+        .then((result) => {
+          spinner.succeed(`Presenting results for: ${chalk.gray(searchTerm)}`);
+          ResultPrinter.print(result);
+        })
         .then(() => this.printLn(""))
         .catch((err) => {
           this.log.error(err.stack);
