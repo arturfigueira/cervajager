@@ -1,3 +1,3 @@
-export { ScrapedBeer, UndiscoveredBeer } from "./scrapedBeer";
+export { ScrapedBeer, UndiscoveredBeer, Source } from "./scrapedBeer";
 export { SourceScraper } from "./sourceScraper";
-export { Scraper } from "./scraper";
+export { Scraper, ScraperResult, ScrapeError } from "./scraper";

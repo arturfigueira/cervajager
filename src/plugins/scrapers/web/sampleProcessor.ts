@@ -1,4 +1,4 @@
-import { ScrapedBeer, UndiscoveredBeer } from "../../../core";
+import { ScrapedBeer, Source, UndiscoveredBeer } from "../../../core";
 import { Page } from "puppeteer";
 import { ScrapProcessor } from ".";
 import * as JSON from "jsonfile";
@@ -14,7 +14,14 @@ import * as JSON from "jsonfile";
  */
 export class SamplerProcessor implements ScrapProcessor {
   private readonly file = "./samples/sample.json";
-  private readonly source = { name: "Wonka", location: this.file };
+  private source: Readonly<Source> = { name: "Wonka", location: this.file };
+
+  /**
+   * @inheritdoc
+   */
+  getSource(): Source {
+    return this.source;
+  }
 
   /**
    * @inheritdoc

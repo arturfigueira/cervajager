@@ -1,111 +1,60 @@
-import { ScrapedBeer, SourceScraper } from "../../../core";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { ScrapedBeer, SourceScraper, Source } from "../../../core";
 import { ScrapProcessor } from "./scrapProcessor";
+import { NameMatcher } from "../../../core/matcher";
+import { ScraperEngine } from "./";
+import { TaskStatus, TaskResult } from "./taskResult";
 
 /**
- * Scraper concrete implementation that has the ability to access
+ * Concrete Scraper implementation that has the ability to access
  * remote web sites and scrape it. As the scraper might be dealing with
  * different web sites, with unique structures a {@link ScrapProcessor}
  * will take responsibility into evaluating the web page and
- * processing the data
+ * processing the data. Also, web store usually add a bunch of other beers
+ * to their results, making necessary to filter them. This will be done
+ * by a {@link NameMatcher}.
  */
 export class WebScraper implements SourceScraper {
-  private static readonly VIEWPORT_BEST_SIZE = { width: 2048, height: 1024 };
-
-  private static readonly FILTERS = ["image", "font"];
-
   /**
-   * Create a new WebScraper with a list of Processors
-   * @param scrapProcessors Non-null, nor empty list of web processors
+   * Create a new Web Based scraper
+   * @param scrapProcessors Non-null web processors
+   * @param matcher Optional name matcher to remove undesired results. If ignored no filter will be applied over the results
    * @throws If the scrapProcessor is null or empty
    */
-  constructor(protected scrapProcessors: ScrapProcessor[]) {
-    if (!scrapProcessors || scrapProcessors.length == 0) {
-      throw new Error("At least one Scrape Handler must be provided");
+  constructor(
+    protected scrapProcessor: ScrapProcessor,
+    protected matcher?: NameMatcher
+  ) {
+    if (!scrapProcessor) {
+      throw new Error("A Scrape Processor must be provided");
     }
   }
 
-  protected async launch(): Promise<Browser> {
-    const browser: Browser = await puppeteer.launch({
-      args: [
-        "--hide-scrollbars",
-        "--mute-audio",
-        "--disable-infobars",
-        "--disable-breakpad",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-      ],
-    });
-    return browser;
+  /**
+   * @inheritdoc
+   */
+  getSource(): Source {
+    return this.scrapProcessor.getSource();
   }
 
   /**
    * @inheritdoc
    */
   scrapeByName(beerName: string): Promise<ScrapedBeer[]> {
-    return this.launch().then((browser) => {
-      return Promise.allSettled(this.launchScrapers(browser, beerName))
-        .then((result) => this.evaluateResults(result))
-        .finally(() => browser.close());
-    });
-  }
+    const worker = {
+      beerName,
+      processor: this.scrapProcessor,
+      matcher: this.matcher,
+    };
 
-  protected launchScrapers(
-    browser: Browser,
-    beerName: string
-  ): Promise<ScrapedBeer[]>[] {
-    return this.scrapProcessors.map((processor) =>
-      this.setPageAndProcess(browser, processor, beerName)
+    return ScraperEngine.queue(worker).then((result) =>
+      this.handleResult(result)
     );
   }
 
-  protected setPageAndProcess(
-    browser: Browser,
-    processor: ScrapProcessor,
-    beerName: string
-  ): Promise<ScrapedBeer[]> {
-    return browser.newPage().then((page) => {
-      page.setViewport(WebScraper.VIEWPORT_BEST_SIZE);
-      return page
-        .setRequestInterception(true)
-        .then(() => this.runProcessor(page, processor, beerName));
-    });
-  }
-
-  protected runProcessor(
-    page: Page,
-    processor: ScrapProcessor,
-    beerName: string
-  ): Promise<ScrapedBeer[]> {
-    this.applyFiltersToPage(page);
-    return processor.run(page, beerName);
-  }
-
-  protected applyFiltersToPage(page: Page): void {
-    page.on("request", (req) => {
-      if (WebScraper.FILTERS.some((type) => req.resourceType() === type)) {
-        req.abort();
-      } else {
-        req.continue();
-      }
-    });
-  }
-
-  protected evaluateResults(
-    results: PromiseSettledResult<ScrapedBeer[]>[]
-  ): ScrapedBeer[] {
-    let scrapedBeers: ScrapedBeer[] = [];
-    results.forEach((result) => {
-      if (result.status === "fulfilled") {
-        result.value.forEach(
-          (beers) => (scrapedBeers = scrapedBeers.concat(beers))
-        );
-      } else {
-        console.error(`A Scrape process ended badly. ${result.reason}`);
-      }
-    });
-
-    results;
-    return scrapedBeers;
+  private handleResult(result: TaskResult<string | ScrapedBeer[]>) {
+    if (result.status === TaskStatus.Success) {
+      return result.data as ScrapedBeer[];
+    }
+    throw new Error(result.data as string);
   }
 }

@@ -1,27 +1,15 @@
-import { mock, mockReset } from "jest-mock-extended";
-import { SourceScraper, Scraper } from "../../src/core";
-import { NameMatcher } from "../../src/core/matcher";
-import { Source } from "../../src/core/scrapedBeer";
-
-const mockMatcher = mock<NameMatcher>();
-
-beforeEach(() => {
-  mockReset(mockMatcher);
-});
+import { mock } from "jest-mock-extended";
+import { SourceScraper, Scraper, Source, ScrapeError } from "../../src/core";
 
 describe("Scraper", () => {
   describe("constructor", () => {
     describe("Invalid Inputs", () => {
       it("When specifying an empty source list, it should thrown an error", () => {
-        return expect(() => new Scraper([], mock<NameMatcher>())).toThrow();
+        return expect(() => new Scraper([])).toThrow();
       });
+
       it("When specifying null source list, it should thrown an error", () => {
-        return expect(() => new Scraper(null, mock<NameMatcher>())).toThrow();
-      });
-      it("When specifying a null matcher, it should thrown an error", () => {
-        return expect(
-          () => new Scraper([mock<SourceScraper>()], null)
-        ).toThrow();
+        return expect(() => new Scraper(null)).toThrow();
       });
     });
   });
@@ -33,7 +21,7 @@ describe("Scraper", () => {
         (beerName: string) => {
           //given
           const mockedExtScraper = mock<SourceScraper>();
-          const scraper = new Scraper([mockedExtScraper], mockMatcher);
+          const scraper = new Scraper([mockedExtScraper]);
 
           //then
           return expect(() => scraper.byName(beerName)).rejects.toBeDefined();
@@ -42,14 +30,12 @@ describe("Scraper", () => {
     });
 
     describe("Searching", () => {
-      it("When searched, an ordered by price list should be returned", async () => {
+      it("When searched, the result should contain a single ordered by price list (asc)", async () => {
         //given
         const mockA = mock<SourceScraper>();
         const mockB = mock<SourceScraper>();
-        const scraper = new Scraper([mockA, mockB], mockMatcher);
+        const scraper = new Scraper([mockA, mockB]);
         const source = mock<Source>();
-
-        mockMatcher.matches.mockReturnValue(true);
 
         const resultA = {
           name: "Hb Original 500ml",
@@ -72,19 +58,84 @@ describe("Scraper", () => {
         mockB.scrapeByName.mockResolvedValue([resultB]);
 
         //when
-        const scrapedBeers = await scraper.byName("Cerveja Hb Original 500ml");
+        const result = await scraper.byName("Cerveja Hb Original 500ml");
 
         //then
-        return expect(scrapedBeers).toStrictEqual([resultB, resultA]);
+        return expect(result.scrapedBeers).toStrictEqual([resultB, resultA]);
       });
 
-      it("When searched, it should discard unmatched beers", async () => {
+      it("When searched, the result should contain capitalize beer names", async () => {
         //given
         const mockA = mock<SourceScraper>();
-        const scraper = new Scraper([mockA], mockMatcher);
+        const scraper = new Scraper([mockA]);
         const source = mock<Source>();
 
         const resultA = {
+          name: "Hb ORIGINAL 500ml",
+          price: 30.99,
+          currency: "R$",
+          found: true,
+          available: true,
+          source: source,
+        };
+        const resultB = {
+          name: "hb Original 500ml",
+          price: 30.85,
+          currency: "R$",
+          found: true,
+          available: true,
+          source: source,
+        };
+        const resultC = {
+          name: "hb Original 500 ML",
+          price: 30.85,
+          currency: "R$",
+          found: true,
+          available: true,
+          source: source,
+        };
+
+        mockA.scrapeByName.mockResolvedValue([resultA, resultB, resultC]);
+
+        //when
+        const result = await scraper.byName("Cerveja Hb Original 500ml");
+
+        //then
+        return expect(result.scrapedBeers.map((b) => b.name)).toStrictEqual([
+          "Hb Original 500ml",
+          "Hb Original 500ml",
+          "Hb Original 500ml",
+        ]);
+      });
+
+      it("When searched, the result should contain a list of failed sources", async () => {
+        //given
+        const mockA = mock<SourceScraper>();
+        const mockB = mock<SourceScraper>();
+        const scraper = new Scraper([mockA, mockB]);
+
+        mockA.scrapeByName.mockResolvedValue([]);
+        mockB.scrapeByName.mockRejectedValue("Test Error");
+        mockB.getSource.mockReturnValue({ name: "My Test" });
+
+        //when
+        const result = await scraper.byName("Cerveja Hb Original 500ml");
+
+        //then
+        expect(result.errors.length).toBe(1);
+        expect(result.errors[0].reason).toBe("Test Error");
+        return expect(result.errors[0].source).toStrictEqual({
+          name: "My Test",
+        });
+      });
+
+      it("When searched, out of stock or unavailable beers should be a the end of result list", async () => {
+        //given
+        const mockA = mock<SourceScraper>();
+        const scraper = new Scraper([mockA]);
+        const source = mock<Source>();
+
+        const resultC = {
           name: "Paulaner Helles 500ml",
           price: 30.77,
           currency: "R$",
@@ -93,28 +144,76 @@ describe("Scraper", () => {
           source: source,
         };
         const resultB = {
-          name: "Hb Original 500ml",
-          price: 25.99,
+          name: "Kwak Ale 500ml",
+          price: NaN,
           currency: "R$",
           found: true,
-          available: true,
+          available: false,
+          source: source,
+        };
+        const resultA = {
+          name: "Hb Original 500ml",
+          price: NaN,
+          currency: "R$",
+          found: false,
+          available: false,
           source: source,
         };
 
-        mockA.scrapeByName.mockResolvedValue([resultA, resultB]);
-        mockMatcher.matches
-          .calledWith(resultA.name, "Cerveja Hb Original 500ml")
-          .mockReturnValue(false);
-        mockMatcher.matches
-          .calledWith(resultB.name, "Cerveja Hb Original 500ml")
-          .mockReturnValue(true);
+        mockA.scrapeByName.mockResolvedValue([resultA, resultB, resultC]);
 
         //when
-        const scrapedBeers = await scraper.byName("Cerveja Hb Original 500ml");
+        const result = await scraper.byName("Cerveja Hb Original 500ml");
 
         //then
-        return expect(scrapedBeers).toStrictEqual([resultB]);
+        return expect(result.scrapedBeers).toStrictEqual([
+          resultC,
+          resultA,
+          resultB,
+        ]);
       });
+    });
+  });
+});
+
+describe("ScrapeError", () => {
+  describe("toString", () => {
+    it("When concatenated to a string, it should execute the overridden toString method", () => {
+      //given
+      const error = new ScrapeError("My Test Error", { name: "My Source" });
+
+      //when
+      const text = "" + error;
+
+      //then
+      expect(text).toStrictEqual("ScrapeError [ My Source ] : My Test Error");
+    });
+
+    it("When interpolated into a string, it should execute the overridden toString method", () => {
+      //given
+      const error = new ScrapeError("My Test Error", { name: "My Source" });
+
+      //when
+      const text = `this is a ${error}`;
+
+      //then
+      expect(text).toStrictEqual(
+        "this is a ScrapeError [ My Source ] : My Test Error"
+      );
+    });
+
+    it("When joining from an array, it should execute the overridden toString method", () => {
+      //given
+      const error = new ScrapeError("My Test Error", { name: "My Source" });
+      const errors = [error, error];
+
+      //when
+      const text = errors.join(",");
+
+      //then
+      expect(text).toStrictEqual(
+        "ScrapeError [ My Source ] : My Test Error,ScrapeError [ My Source ] : My Test Error"
+      );
     });
   });
 });
