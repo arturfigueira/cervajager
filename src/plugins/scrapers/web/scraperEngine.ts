@@ -11,15 +11,16 @@ export class ScraperEngine {
   private static _INSTANCE: Promise<ScraperEngine> = null;
   private static CONCURRENT_WORKERS = 100;
 
-  private static LAUNCH_ARGS: {
-    ignoreDefaultArgs: [
+  private static LAUNCH_ARGS = {
+    headles: true,
+    args: [
       "--hide-scrollbars",
       "--mute-audio",
       "--disable-infobars",
       "--disable-breakpad",
       "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ];
+      "--disable-setuid-sandbox",
+    ],
   };
 
   private cluster: Cluster<string, TaskResult<string | ScrapedBeer[]>> = null;
