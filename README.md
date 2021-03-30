@@ -4,7 +4,7 @@
 
 [![codecov](https://codecov.io/gh/arturfigueira/cervajager/branch/develop/graph/badge.svg?token=G1CVVM61HZ)](https://codecov.io/gh/arturfigueira/cervajager)
 
-Searching for beers sometimes can be a hassle, browsing each beer's web dtore, for the best price it's time consuming and sometimes confusing. Even though We have access to google shopping and similar, small beer's stores and importers are usually not available at those indexers.
+Searching for beers sometimes can be a hassle, browsing each beer's web store, for the best price it's time consuming and sometimes confusing. Even though We have access to google shopping and similar, small beer's stores and importers are usually not available at those indexers.
 
 CervaJäger is a module that contains only the backbone for other applications, and will provide methods to register data sources, search, organize and return the best matches for the desired beer. The main purpose of this module is searching web sources, via scraping. However, the module is generic in a way that other types of data sources (spreadsheets, rest api,...) can be implemented and plugin in into the final application.
 
@@ -15,6 +15,8 @@ _This module has no association with any beer, brewery, or Web Store._
 - [CervaJäger](#cervajäger)
   - [Table of Contents](#table-of-contents)
   - [Instalation](#instalation)
+    - [Installing from release or source code](#installing-from-release-or-source-code)
+    - [Installing from github packages](#installing-from-github-packages)
   - [Example of Usage](#example-of-usage)
   - [API](#api)
     - [Scraper.byName(string)](#scraperbynamestring)
@@ -30,7 +32,13 @@ Pre-Requisites:
 - It`s required at least [NodeJs](https://nodejs.org/en/) version 14.x
 - At least 400mb of space, as it will use an embedded chromium
 
-The API is not available at NPM. So download the [last released version](https://github.com/arturfigueira/cervajager/tags) or checkout the code, from this repo,and install it:
+The modulo is not available at NPM. You have three options at the moment, depending on how you`d to use the module:
+
+1. Download the [last released version](https://github.com/arturfigueira/cervajager/tags);
+2. Checkout the source code, from this repo, and install it;
+3. Download the npm package from github packages. _Refer to this [guide](https://docs.github.com/pt/packages/guides/configuring-npm-for-use-with-github-packages#installing-a-package) for more info on how to configure Github as a npm registry_.
+
+### Installing from release or source code
 
 ```bash
 cd <checkout_folder>
@@ -47,16 +55,21 @@ node ./cli -s "beer name"
 
 ![Companion CLI](./assets/cervajager-cli-example.gif)
 
+### Installing from github packages
+
+```bash
+npm i @arturfigueira/cervajager
+```
+
 ## Example of Usage
 
 ```typescript
-import { Scraper } from "./core";
-import { DamerauMatcher } from "./core/matcher";
+import { Scraper, DamerauMatcher } from "@arturfigueira/cervajager";
 import {
   SamplerProcessor,
   WebScraper,
   ScraperEngine,
-} from "./plugins/scrapers/web";
+} from "@arturfigueira/cervajager";
 
 const searchTerm = "Straffe Hendrik Heritage 2013";
 
