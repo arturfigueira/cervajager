@@ -9,10 +9,11 @@ import { TaskResult } from "./taskResult";
  */
 export class ScraperEngine {
   private static _INSTANCE: Promise<ScraperEngine> = null;
-  private static CONCURRENT_WORKERS = 100;
+  private static CONCURRENT_WORKERS = 5;
+  private static DEFAULT_TIMEOUT = 3000;
 
   private static LAUNCH_ARGS = {
-    headles: true,
+    headless: true,
     args: [
       "--hide-scrollbars",
       "--mute-audio",
@@ -33,7 +34,8 @@ export class ScraperEngine {
 
   /**
    * Set the maximum workers allowed to execute simultaneously.
-   * Default is 100.
+   * Default is 5.
+   * Modifications will only take place when the engine is recreated
    * @param workers positive number of maximum concurrent workers
    * @throws If the number is not greater than zero
    */
@@ -42,6 +44,20 @@ export class ScraperEngine {
       throw new Error("Number of concurrent workers should be greater than 0");
     }
     ScraperEngine.CONCURRENT_WORKERS = workers;
+  }
+
+  /**
+   * Set the queued tasks timeout. When the timeout is hit, an error will be thrown
+   * Default is 3000ms.
+   * Modifications will only take place when the engine is recreated
+   * @param workers positive number of maximum concurrent workers
+   * @throws If the number is not below zero
+   */
+  public static setDefaultTimeout(timeout: number): void {
+    if (timeout < 0) {
+      throw new Error("Timeout must be greater than zero");
+    }
+    ScraperEngine.DEFAULT_TIMEOUT = timeout;
   }
 
   /**
@@ -62,6 +78,7 @@ export class ScraperEngine {
       concurrency: Cluster.CONCURRENCY_CONTEXT,
       maxConcurrency: this.maxConcurrentWorkers,
       puppeteerOptions: ScraperEngine.LAUNCH_ARGS,
+      timeout: ScraperEngine.DEFAULT_TIMEOUT,
     });
     return this;
   }
@@ -85,21 +102,34 @@ export class ScraperEngine {
   /**
    * Queue a Scraper Worker to be processed by the engine
    * @param worker the worker that will be enqueued
+   * @param retries optional number of retries before letting the queued work reject. Zero means no retries
    * @returns A promise that will resolve into a {@link TaskResult}, which can be a fulfilled or failed task
    */
   public static async queue(
-    worker: Worker
+    worker: Worker,
+    retries: number = 0
   ): Promise<TaskResult<string | ScrapedBeer[]>> {
-    return ScraperEngine.getInstance().then((engine) => engine.execute(worker));
+    return ScraperEngine.getInstance().then((engine) =>
+      engine.execute(worker, retries)
+    );
   }
 
   private async execute(
-    worker: Worker
+    worker: Worker,
+    retries: number
   ): Promise<TaskResult<string | ScrapedBeer[]>> {
+    retries--;
     if (!this.cluster) {
       throw new Error("Illegal Engine State");
     }
 
-    return this.cluster.execute(worker.beerName, TaskBuilder.buildFor(worker));
+    return this.cluster
+      .execute(worker.beerName, TaskBuilder.buildFor(worker))
+      .catch((err) => {
+        if (retries) {
+          return ScraperEngine.queue(worker, retries);
+        }
+        throw err;
+      });
   }
 }
