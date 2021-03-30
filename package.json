@@ -1,7 +1,7 @@
 {
-  "name": "cervajager",
+  "name": "@arturfigueira/cervajager",
   "version": "0.1.0",
-  "description": "helper module to build applications to search beer prices",
+  "description": "helper module to build applications which search beer prices",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,13 +11,16 @@
     "dist/core/**/*.d.ts",
     "dist/core/**/*.js.map",
     "dist/core/**/*.js",
+    "dist/core/**/*.json",
     "dist/plugins/**/*.d.ts",
     "dist/plugins/**/*.js.map",
     "dist/plugins/**/*.js"
   ],
   "scripts": {
+    "clean": "rimraf dist",
     "lint": "eslint --fix --ext .ts .",
-    "build": "npm run lint && npm run build-ts",
+    "pre-build": "npm run clean && npm run lint",
+    "build": "npm run pre-build && npm run build-ts",
     "build-ts": "tsc",
     "test": "npm run build && jest --passWithNoTests --forceExit --coverage --verbose"
   },
@@ -30,11 +33,13 @@
   },
   "author": "Artur Figueira",
   "license": "GNU",
-  "private": true,
   "bugs": {
     "url": "https://github.com/arturfigueira/cervajager/issues"
   },
   "homepage": "https://github.com/arturfigueira/cervajager#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/arturfigueira"
+  },
   "dependencies": {
     "chalk": "^4.1.0",
     "chalk-table": "^1.0.2",
@@ -70,6 +75,7 @@
     "jest": "^26.6.3",
     "jest-mock-extended": "^1.0.13",
     "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^26.5.1",
     "typescript": "^4.1.5"
   }
