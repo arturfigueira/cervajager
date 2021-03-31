@@ -18,11 +18,13 @@ export class WebScraper implements SourceScraper {
    * Create a new Web Based scraper
    * @param scrapProcessors Non-null web processors
    * @param matcher Optional name matcher to remove undesired results. If ignored no filter will be applied over the results
+   * @param retries Optional number of retries before letting the scraper job fails completely. Zero means no retries. Default is zero
    * @throws If the scrapProcessor is null or empty
    */
   constructor(
     protected scrapProcessor: ScrapProcessor,
-    protected matcher?: NameMatcher
+    protected matcher?: NameMatcher,
+    protected retries = 0
   ) {
     if (!scrapProcessor) {
       throw new Error("A Scrape Processor must be provided");
@@ -46,7 +48,7 @@ export class WebScraper implements SourceScraper {
       matcher: this.matcher,
     };
 
-    return ScraperEngine.queue(worker).then((result) =>
+    return ScraperEngine.queue(worker, this.retries).then((result) =>
       this.handleResult(result)
     );
   }
