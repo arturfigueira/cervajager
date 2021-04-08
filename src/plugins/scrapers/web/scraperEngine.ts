@@ -3,6 +3,7 @@ import { Cluster } from "puppeteer-cluster";
 import { ScrapedBeer } from "../../../core";
 import TaskBuilder from "./taskBuilder";
 import { TaskResult } from "./taskResult";
+import { LaunchOptions } from "puppeteer";
 
 /**
  * Singleton engine responsible to start async scraper workers
@@ -12,24 +13,36 @@ export class ScraperEngine {
   private static CONCURRENT_WORKERS = 5;
   private static DEFAULT_TIMEOUT = 3000;
 
-  private static LAUNCH_ARGS = {
+  private static LAUNCH_ARGS: LaunchOptions = {
     headless: true,
     args: [
       "--hide-scrollbars",
       "--mute-audio",
       "--disable-infobars",
       "--disable-breakpad",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
     ],
   };
 
   private cluster: Cluster<string, TaskResult<string | ScrapedBeer[]>> = null;
 
-  private constructor(private maxConcurrentWorkers: number) {
-    if (maxConcurrentWorkers < 1) {
-      throw new Error("Number of workers should be greater than 1");
+  /**
+   * Update the default Engine launch options.
+   * Default is a headless browser with:
+   *  --hide-scrollbars
+   *  --mute-audio
+   *  --disable-infobars
+   *  --disable-breakpad
+   *
+   * Modifications will only take place when the engine is recreated
+   *
+   * @param opts a puppeteer {@link LaunchOptions} dictionary
+   * @throws If opts is empty or null
+   */
+  public static setLaunchOptions(opts: LaunchOptions): void {
+    if (!opts) {
+      throw new Error("A valid launch option should be provided");
     }
+    ScraperEngine.LAUNCH_ARGS = opts;
   }
 
   /**
@@ -66,9 +79,7 @@ export class ScraperEngine {
    */
   public static async getInstance(): Promise<ScraperEngine> {
     if (!ScraperEngine._INSTANCE) {
-      ScraperEngine._INSTANCE = new ScraperEngine(
-        ScraperEngine.CONCURRENT_WORKERS
-      ).ready();
+      ScraperEngine._INSTANCE = new ScraperEngine().ready();
     }
     return ScraperEngine._INSTANCE;
   }
@@ -76,7 +87,7 @@ export class ScraperEngine {
   private async ready(): Promise<ScraperEngine> {
     this.cluster = await Cluster.launch({
       concurrency: Cluster.CONCURRENCY_CONTEXT,
-      maxConcurrency: this.maxConcurrentWorkers,
+      maxConcurrency: ScraperEngine.CONCURRENT_WORKERS,
       puppeteerOptions: ScraperEngine.LAUNCH_ARGS,
       timeout: ScraperEngine.DEFAULT_TIMEOUT,
     });
