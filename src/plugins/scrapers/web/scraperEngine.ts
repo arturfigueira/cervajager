@@ -11,7 +11,7 @@ import { LaunchOptions } from "puppeteer";
 export class ScraperEngine {
   private static _INSTANCE: Promise<ScraperEngine> = null;
   private static CONCURRENT_WORKERS = 5;
-  private static DEFAULT_TIMEOUT = 3000;
+  private static DEFAULT_TIMEOUT = 30000;
 
   private static LAUNCH_ARGS: LaunchOptions = {
     headless: true,
@@ -61,7 +61,7 @@ export class ScraperEngine {
 
   /**
    * Set the queued tasks timeout. When the timeout is hit, an error will be thrown
-   * Default is 3000ms.
+   * Default is 30seconds.
    * Modifications will only take place when the engine is recreated
    * @param workers positive number of maximum concurrent workers
    * @throws If the number is not below zero
@@ -137,7 +137,7 @@ export class ScraperEngine {
     return this.cluster
       .execute(worker.beerName, TaskBuilder.buildFor(worker))
       .catch((err) => {
-        if (retries) {
+        if (retries > 0) {
           return ScraperEngine.queue(worker, retries);
         }
         throw err;
