@@ -8,7 +8,7 @@ Searching for beers sometimes can be a hassle, browsing each beer's web store, f
 
 CervaJäger is a module that contains only the backbone for other applications, and will provide methods to register data sources, search, organize and return the best matches for the desired beer. The main purpose of this module is searching web sources, via scraping. However, the module is generic in a way that other types of data sources (spreadsheets, rest api,...) can be implemented and plugin in into the final application.
 
-_This module has no association with any beer, brewery, or Web Store._
+_This module has no association with any beer, brewery, or Web Store. Its purpose is not commercial, by any means, it's a personal project with the intention to help me finding the best beer prices out there. Prost!_
 
 ## Table of Contents
 
